@@ -114,7 +114,7 @@ namespace OrderDeliveryClassesConsole
             Discripsion = null;
         }
     }
-    
+
 
     class Order<TDelivery, TStruct> where TDelivery : Delivery
     {
@@ -160,9 +160,20 @@ namespace OrderDeliveryClassesConsole
 
         public (int, Product) this[int index]//Переделать на картеж
         {
-            get { return (productCount[index].count, productCount[index].product);   }
-            set 
-            { productCount[index] = new ProductCount(value.Item2,value.Item1); }
+            get { return (productCount[index].count, productCount[index].product); }
+            set
+            { productCount[index] = new ProductCount(value.Item2, value.Item1); }
+        }
+        public static Order<TDelivery, TStruct> operator +(Order<TDelivery, TStruct> order, ProductCount productCount)
+        {
+            ProductCount[] newProductCount= new ProductCount[order.productCount.Length];
+            for(int i = 0;i < order.productCount.Length;i++)
+            {
+                newProductCount[i] = order.productCount[i];
+            }
+            newProductCount[order.productCount.Length] = productCount;
+
+            return order;
         }
 
         // ... Другие поля
