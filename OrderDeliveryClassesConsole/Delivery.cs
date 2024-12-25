@@ -12,7 +12,30 @@ namespace OrderDeliveryClassesConsole
         Underway,
         Cancelled
     }
+    public abstract class Transport
+    {
 
+    }
+    public class Truck:Transport
+    {
+
+    }
+    public class Car:Transport
+    {
+
+    }
+    public class Bike:Transport
+    {
+
+    }
+    public class AvailableTransprorts
+    {
+        public Transport[] transports;
+        public Transport GetTransport(int i)
+        {
+            return transports[i];
+        }
+    }
     public abstract class Delivery
     {
         public string Address;
@@ -37,29 +60,32 @@ namespace OrderDeliveryClassesConsole
     /// </summary>
     public abstract class HomeDelivery : Delivery
     {
-
-        //public HomeDelivery()
-        //{
-
-
-        //}
-        /* ... */
-
+        internal AvailableTransprorts availableTransprortsRef;
+        public HomeDelivery(ref AvailableTransprorts availableTransprortsRef)
+        {
+            this.availableTransprortsRef = availableTransprortsRef;
+        }
     }
     public class OurHomeDelivery : HomeDelivery
     {
-        private DateTime CalculationTimeDelivery()//Реализовать данный метод
+        public OurHomeDelivery(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        {
+        }
+
+        private DateTime CalculationTimeDelivery<TTransport>(TTransport transport)where TTransport : Transport //Реализовать данный метод
         {
             return DateTime.Now;
         }
         public override void UpdateDeliveryDate()
         {
-            deliveryDate = CalculationTimeDelivery();
+            deliveryDate = CalculationTimeDelivery(availableTransprortsRef.GetTransport(5));
         }
     }
     public class Incity : OurHomeDelivery
     {
-
+        public Incity(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        {
+        }
     }
     /// <summary>
     /// доставка в пункт выдачи. Здесь будет храниться какая-то ещё логика, 
