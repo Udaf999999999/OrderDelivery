@@ -77,6 +77,10 @@ namespace OrderDeliveryClassesConsole
             this.availableTransprorts = availableTransprorts;
         }
     }
+    /// <summary>
+    /// Доставка на дом нашими средствами
+    /// </summary>
+    /// <typeparam name="TTransport"></typeparam>
     public abstract class OurHomeDelivery<TTransport> : HomeDelivery where TTransport : Transport
     {
         public OurHomeDelivery(AvailableTransprorts availableTransprorts) : base(availableTransprorts)
@@ -87,6 +91,10 @@ namespace OrderDeliveryClassesConsole
 
         
     }
+    /// <summary>
+    /// Доставка на дом нашими средствами внутри города
+    /// </summary>
+    /// <typeparam name="TTransport"></typeparam>
     public class Incity<TTransport> : OurHomeDelivery<TTransport> where TTransport : Transport
     {
         public Incity(AvailableTransprorts availableTransprorts) : base(availableTransprorts)
@@ -102,6 +110,9 @@ namespace OrderDeliveryClassesConsole
             return DateTime.Now;
         }
     }
+    /// <summary>
+    /// Доставка на дом нашими средствами в области
+    /// </summary>
     public class InRegion : OurHomeDelivery<Truck>
     {
         public InRegion(ref AvailableTransprorts availableTransprortsRef) : base(availableTransprortsRef)
