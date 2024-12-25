@@ -36,9 +36,22 @@ namespace OrderDeliveryClassesConsole
             return transports[i];
         }
     }
+    public static class StringExtension
+    {
+        public static string RemoveComas(this string str)
+        {
+            return str.Replace(",", string.Empty);
+        }
+    }
     public abstract class Delivery
     {
-        public string Address;
+        public string address;
+        public string Address
+        {
+            get { return address; }
+            set { address = value.RemoveComas(); }
+        }
+
         protected DateTime deliveryDate;
         public DateTime DeliveryDate
         {
@@ -49,10 +62,7 @@ namespace OrderDeliveryClassesConsole
         {
             Status = newStatus;
         }
-        public virtual void UpdateDeliveryDate()
-        {
-
-        }
+        public abstract void UpdateDeliveryDate();
     }
     /// <summary>
     /// доставка на дом. Этот тип будет подразумевать наличие курьера или передачу курьерской компании, 
@@ -66,25 +76,44 @@ namespace OrderDeliveryClassesConsole
             this.availableTransprortsRef = availableTransprortsRef;
         }
     }
-    public class OurHomeDelivery : HomeDelivery
+    public abstract class OurHomeDelivery<TTransport> : HomeDelivery where TTransport : Transport
     {
         public OurHomeDelivery(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
         {
         }
 
-        private DateTime CalculationTimeDelivery<TTransport>(TTransport transport)where TTransport : Transport //Реализовать данный метод
-        {
-            return DateTime.Now;
-        }
-        public override void UpdateDeliveryDate()
-        {
-            deliveryDate = CalculationTimeDelivery(availableTransprortsRef.GetTransport(5));
-        }
+        internal abstract DateTime CalculationTimeDelivery(TTransport transport);
+
+        
     }
-    public class Incity : OurHomeDelivery
+    public class Incity<TTransport> : OurHomeDelivery<TTransport> where TTransport : Transport
     {
         public Incity(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
         {
+        }
+        public override void UpdateDeliveryDate()
+        {
+            deliveryDate = CalculationTimeDelivery((TTransport)availableTransprortsRef.GetTransport(5));
+        }
+
+        internal override DateTime CalculationTimeDelivery(TTransport transport)
+        {
+            return DateTime.Now;
+        }
+    }
+    public class InRegion : OurHomeDelivery<Truck>
+    {
+        public InRegion(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        {
+        }
+        public override void UpdateDeliveryDate()
+        {
+            deliveryDate = CalculationTimeDelivery((Truck)availableTransprortsRef.GetTransport(5));
+        }
+
+        internal override DateTime CalculationTimeDelivery(Truck transport)
+        {
+            return DateTime.Now;
         }
     }
     /// <summary>
@@ -95,6 +124,9 @@ namespace OrderDeliveryClassesConsole
     class PickPointDelivery : Delivery
     {
         /* ... */
+        public override void UpdateDeliveryDate()
+        {
+        }
     }
     /// <summary>
     ///  доставка в розничный магазин. 
@@ -104,6 +136,9 @@ namespace OrderDeliveryClassesConsole
     class ShopDelivery : Delivery
     {
         /* ... */
+        public override void UpdateDeliveryDate()
+        {
+        }
     }
 
     public class Product
