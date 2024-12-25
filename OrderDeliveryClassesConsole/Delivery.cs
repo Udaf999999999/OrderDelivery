@@ -45,7 +45,7 @@ namespace OrderDeliveryClassesConsole
     }
     public abstract class Delivery
     {
-        public string address;
+        private string address;
         public string Address
         {
             get { return address; }
@@ -70,48 +70,49 @@ namespace OrderDeliveryClassesConsole
     /// </summary>
     public abstract class HomeDelivery : Delivery
     {
-        internal AvailableTransprorts availableTransprortsRef;
-        public HomeDelivery(ref AvailableTransprorts availableTransprortsRef)
+        protected AvailableTransprorts availableTransprorts;
+        public AvailableTransprorts AvailableTransprorts { get { return availableTransprorts; } }
+        public HomeDelivery(AvailableTransprorts availableTransprorts)
         {
-            this.availableTransprortsRef = availableTransprortsRef;
+            this.availableTransprorts = availableTransprorts;
         }
     }
     public abstract class OurHomeDelivery<TTransport> : HomeDelivery where TTransport : Transport
     {
-        public OurHomeDelivery(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        public OurHomeDelivery(AvailableTransprorts availableTransprorts) : base(availableTransprorts)
         {
         }
 
-        internal abstract DateTime CalculationTimeDelivery(TTransport transport);
+        protected abstract DateTime CalculationTimeDelivery(TTransport transport);
 
         
     }
     public class Incity<TTransport> : OurHomeDelivery<TTransport> where TTransport : Transport
     {
-        public Incity(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        public Incity(AvailableTransprorts availableTransprorts) : base(availableTransprorts)
         {
         }
         public override void UpdateDeliveryDate()
         {
-            deliveryDate = CalculationTimeDelivery((TTransport)availableTransprortsRef.GetTransport(5));
+            deliveryDate = CalculationTimeDelivery((TTransport)availableTransprorts.GetTransport(5));
         }
 
-        internal override DateTime CalculationTimeDelivery(TTransport transport)
+        protected override DateTime CalculationTimeDelivery(TTransport transport)
         {
             return DateTime.Now;
         }
     }
     public class InRegion : OurHomeDelivery<Truck>
     {
-        public InRegion(ref AvailableTransprorts availableTransprortsRef) : base(ref availableTransprortsRef)
+        public InRegion(ref AvailableTransprorts availableTransprortsRef) : base(availableTransprortsRef)
         {
         }
         public override void UpdateDeliveryDate()
         {
-            deliveryDate = CalculationTimeDelivery((Truck)availableTransprortsRef.GetTransport(5));
+            deliveryDate = CalculationTimeDelivery((Truck)availableTransprorts.GetTransport(5));
         }
 
-        internal override DateTime CalculationTimeDelivery(Truck transport)
+        protected override DateTime CalculationTimeDelivery(Truck transport)
         {
             return DateTime.Now;
         }
@@ -144,8 +145,10 @@ namespace OrderDeliveryClassesConsole
     public class Product
     {
         private int id;
-        public string Title;
-        public string Discripsion;
+        private string title;
+        public string Title { get { return title; } }
+        private string description;
+        public string Descripsion { get { return description; } }
         public int Id
         {
             get { return id; }
@@ -162,24 +165,24 @@ namespace OrderDeliveryClassesConsole
             }
         }
 
-        public Product(int id, string title, string discripsion)
+        public Product(int id, string title, string descripsion)
         {
             this.id = id;
-            Title = title;
-            Discripsion = discripsion;
+            this.title = title;
+            this.description = descripsion;
         }
         public Product(int id, string title)
         {
             this.id = id;
-            Title = title;
-            Discripsion = null;
+            this.title = title;
+            this.description = null;
         }
     }
 
 
     class Order<TDelivery, TStruct> where TDelivery : Delivery
     {
-        public TDelivery Delivery;
+        private TDelivery Delivery;
         public class ProductCount
         {
             public Product product;
@@ -194,10 +197,12 @@ namespace OrderDeliveryClassesConsole
         private ProductCount[] productCount;
         public static int maxProductCount = 10;
 
-        public int id;
-        public string CustumerName;
+        private int id;
+        public int Id { get { return id; } }
+        private string custumerName;
+        public string CustumerName { get { return custumerName; } }
 
-        public Order(string[] order)
+        public Order(string[] order, int id)
         {
             if (order.Length > maxProductCount)
             {
@@ -218,12 +223,10 @@ namespace OrderDeliveryClassesConsole
         {
             Console.WriteLine(Delivery.Address);
         }
-
         public (int, Product) this[int index]//Переделать на картеж
         {
             get { return (productCount[index].count, productCount[index].product); }
-            set
-            { productCount[index] = new ProductCount(value.Item2, value.Item1); }
+            set { productCount[index] = new ProductCount(value.Item2, value.Item1); }
         }
         public static Order<TDelivery, TStruct> operator +(Order<TDelivery, TStruct> order, ProductCount productCount)
         {
@@ -236,7 +239,5 @@ namespace OrderDeliveryClassesConsole
 
             return order;
         }
-
-        // ... Другие поля
     }
 }
